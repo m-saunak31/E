@@ -7,6 +7,7 @@ import { AuthProvider } from './context/AuthContext';
 import Homepage from './components/homepage';
 import Shop from './components/pages/Shop';
 import Kids from './components/pages/Kids';
+import KidsShop from './components/pages/KidsShop';
 import ProductDetail from './components/pages/ProductDetail';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
@@ -33,6 +34,7 @@ function App() {
                 <Route path="/" element={<Homepage />} />
                 <Route path="/shop" element={<Shop />} />
                 <Route path="/kids" element={<Kids />} />
+                <Route path="/shop/kids" element={<KidsShop />} />
                 <Route path="/product/:id" element={<ProductDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/contact" element={<Contact />} />

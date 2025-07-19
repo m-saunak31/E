@@ -256,6 +256,7 @@ img {
 /* Prevent horizontal scroll on mobile */
 html, body {
   overflow-x: hidden;
+  position: relative;
 }
 
 /* Improve font rendering */
@@ -263,4 +264,85 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+}
+
+/* Fix header z-index and positioning issues */
+header {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999 !important;
+}
+
+/* Ensure main content doesn't overlap with fixed header */
+main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Mobile responsive fixes */
+@media (max-width: 768px) {
+  /* Ensure proper spacing on mobile */
+  .pt-32 {
+    padding-top: 8rem !important;
+  }
+  
+  /* Fix mobile header height */
+  header {
+    min-height: 5rem;
+  }
+  
+  /* Prevent content from going under header */
+  body {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Extra mobile fixes */
+  .pt-32 {
+    padding-top: 6rem !important;
+  }
+  
+  /* Adjust hero section for mobile */
+  .hero-section {
+    min-height: calc(100vh - 5rem);
+    padding-top: 2rem;
+  }
+}
+
+/* Tablet responsive fixes */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .pt-32 {
+    padding-top: 8rem !important;
+  }
+}
+
+/* Large screen fixes */
+@media (min-width: 1025px) {
+  .pt-32 {
+    padding-top: 8rem !important;
+  }
+}
+
+/* Fix for overlapping content */
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  margin-top: 0;
+}
+
+/* Ensure modals appear above everything */
+.modal-overlay {
+  z-index: 99999 !important;
+}
+
+/* Fix for mobile menu */
+.mobile-menu {
+  position: fixed;
+  top: 5rem;
+  left: 0;
+  right: 0;
+  z-index: 9998;
 }

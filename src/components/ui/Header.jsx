@@ -16,8 +16,8 @@ export default function Header({ onCartClick }) {
   const { getWishlistItemsCount } = useWishlist();
   const { user, logout, openAuthModal } = useAuth();
 
-  // Check if we're on the kids page for special header styling
-  const isKidsPage = location.pathname === '/kids';
+  // Check if we're on any kids page for special header styling
+  const isKidsPage = location.pathname === '/kids' || location.pathname === '/shop/kids';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -49,7 +49,7 @@ export default function Header({ onCartClick }) {
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Kids', path: '/kids' },
+    { name: 'Kids', path: '/shop/kids' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' }
   ];

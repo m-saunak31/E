@@ -74,7 +74,7 @@ export default function Shop() {
         );
       } else if (selectedGender === 'kids') {
         // Redirect to kids page for kids products
-        navigate('/kids');
+        navigate('/shop/kids');
         return;
       }
     }
@@ -139,11 +139,11 @@ export default function Shop() {
   ];
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black content-wrapper">
       <Header onCartClick={() => setIsCartOpen(true)} />
       
       {/* Enhanced Hero Section */}
-      <div className={`pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+      <div className={`pt-24 sm:pt-32 pb-16 px-4 sm:px-6 lg:px-8 relative overflow-hidden transform transition-all duration-1000 ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
         {/* Background Effects */}
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-32 h-32 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full blur-xl animate-pulse"></div>

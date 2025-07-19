@@ -36,14 +36,14 @@ export default function Hero() {
   }, [currentText, currentIndex, isDeleting, texts]);
 
   return (
-    <section className="relative min-h-screen bg-black overflow-hidden flex items-center">
+    <section className="relative min-h-screen bg-black overflow-hidden flex items-center hero-section">
       {/* Subtle background pattern */}
       <div className="absolute inset-0 opacity-5">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-[#d4af37] rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-[#d4af37] rounded-full blur-3xl"></div>
       </div>
 
-      <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+      <div className="relative z-10 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full content-wrapper">
         <div className="max-w-4xl">
           
           {/* Main Headline with Typewriter Effect - Left Aligned */}

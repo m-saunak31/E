@@ -34,7 +34,7 @@ export default function CartModal({ isOpen, onClose }) {
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex">
+        <div className="fixed inset-0 z-50 flex modal-overlay">
           {/* Backdrop */}
           <motion.div 
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"

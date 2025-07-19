@@ -203,7 +203,7 @@ export default function Footer() {
               </h3>
               <ul className="space-y-4">
                 <li><button onClick={() => handleNavigation('/shop')} className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light block text-left" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>All Collections</button></li>
-                <li><button onClick={() => handleNavigation('/kids')} className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light block text-left" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>Kids Collection</button></li>
+                <li><button onClick={() => handleNavigation('/shop/kids')} className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light block text-left" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>Kids Collection</button></li>
                 <li><button onClick={() => handleNavigation('/shop?category=new')} className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light block text-left" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>New Arrivals</button></li>
                 <li><button onClick={() => handleNavigation('/shop?category=bestsellers')} className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light block text-left" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>Best Sellers</button></li>
                 <li><a href="#try-on" className="text-gray-300 hover:text-[#d4af37] transition-colors duration-300 text-base font-light" style={{ fontFamily: "'Inter', sans-serif", fontWeight: '300' }}>AR Try-On</a></li>

@@ -54,7 +54,7 @@ export default function AuthModal() {
   return (
     <AnimatePresence>
       {isAuthModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center modal-overlay">
           {/* Backdrop */}
           <motion.div 
             className="absolute inset-0 bg-black/80 backdrop-blur-sm"
