@@ -49,7 +49,6 @@ export default function Header({ onCartClick }) {
   const navItems = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
-    { name: 'Kids', path: '/shop/kids' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' }
   ];
