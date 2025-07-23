@@ -1,7 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
 const { v4: uuidv4 } = require('uuid');
-const googleSheetService = require('../services/googleSheetService');
+const dataService = require('../services/dataService');
 
 const router = express.Router();
 
@@ -58,7 +58,7 @@ router.post('/', async (req, res) => {
 
     // Validate stock availability
     console.log('🔍 Validating stock for order:', orderId);
-    const stockValidation = await googleSheetService.validateStock(orderData.items);
+    const stockValidation = await dataService.validateStock(orderData.items);
     
     if (!stockValidation.valid) {
       return res.status(400).json({
@@ -74,7 +74,7 @@ router.post('/', async (req, res) => {
     const processedItems = [];
 
     for (const item of orderData.items) {
-      const product = await googleSheetService.getProductById(item.productId);
+      const product = await dataService.getProductById(item.productId);
       if (!product) {
         return res.status(400).json({
           error: 'Invalid product',
@@ -120,14 +120,14 @@ router.post('/', async (req, res) => {
 
     // Log order to Google Sheets
     console.log('📝 Logging order to Google Sheets:', orderId);
-    await googleSheetService.logOrder(order);
+    await dataService.logOrder(order);
 
     // Update stock for each item
     console.log('📦 Updating stock for ordered items...');
     for (const item of orderData.items) {
-      const product = await googleSheetService.getProductById(item.productId);
+      const product = await dataService.getProductById(item.productId);
       const newStock = product.stock - item.quantity;
-      await googleSheetService.updateProductStock(item.productId, newStock);
+      await dataService.updateProductStock(item.productId, newStock);
       console.log(`✅ Updated stock for product ${item.productId}: ${product.stock} → ${newStock}`);
     }
 
@@ -231,7 +231,7 @@ router.post('/validate-stock', async (req, res) => {
     }
 
     // Validate stock
-    const validation = await googleSheetService.validateStock(items);
+    const validation = await dataService.validateStock(items);
 
     res.json({
       success: validation.valid,
@@ -260,10 +260,10 @@ router.post('/validate-stock', async (req, res) => {
  */
 router.get('/health/check', async (req, res) => {
   try {
-    const status = await googleSheetService.getConnectionStatus();
+    const status = await dataService.getConnectionStatus();
     
     res.json({
-      success: status.connected,
+      success: true,
       data: {
         ...status,
         orderSystem: 'operational',
@@ -283,6 +283,67 @@ router.get('/health/check', async (req, res) => {
     res.status(503).json({
       success: false,
       error: 'Health check failed',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * GET /api/orders/mock/list (Development only)
+ * Get all orders from mock data
+ */
+router.get('/mock/list', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      error: 'Not allowed in production',
+      message: 'Mock data access is only available in development mode'
+    });
+  }
+
+  try {
+    const orders = await dataService.getOrders();
+    
+    res.json({
+      success: true,
+      data: orders,
+      count: orders.length,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to fetch orders',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/orders/mock/reset (Development only)
+ * Reset mock data to initial state
+ */
+router.post('/mock/reset', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      error: 'Not allowed in production',
+      message: 'Mock data reset is only available in development mode'
+    });
+  }
+
+  try {
+    await dataService.resetData();
+    
+    res.json({
+      success: true,
+      message: 'Mock data reset to initial state',
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to reset mock data',
       message: error.message,
       timestamp: new Date().toISOString()
     });

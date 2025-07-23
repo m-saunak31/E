@@ -1,27 +1,66 @@
 # EyeLura Backend API
 
-A Node.js + Express backend for the EyeLura eyewear ecommerce website with Google Sheets integration for dynamic product management and inventory tracking.
+A Node.js + Express backend for the EyeLura eyewear ecommerce website with **automatic Google Sheets integration** and **mock data fallback** for easy development.
 
 ## Features
 
-- 🔄 **Dynamic Product Sync**: Fetch products from Google Sheets in real-time
+- 🔄 **Smart Data Source**: Automatically uses Google Sheets if configured, otherwise uses mock data
+- 📦 **Mock Data Included**: Works out-of-the-box with sample products for testing
 - 📦 **Inventory Management**: Automatic stock updates when orders are placed
 - 🛒 **Order Processing**: Complete order handling with stock validation
-- 📊 **Google Sheets Integration**: Seamless integration with Google Sheets API
+- 📊 **Optional Google Sheets**: Easy Google Sheets integration when you're ready
 - 🔒 **Security**: Rate limiting, CORS, and input validation
 - 📝 **Logging**: Comprehensive logging and error handling
 - 🚀 **Performance**: Caching and optimized queries
 
-## Quick Start
+## 🚀 Quick Start (No Google Sheets Required!)
 
 ### 1. Installation
 
 ```bash
 cd backend
 npm install
+npm run dev
 ```
 
-### 2. Google Sheets Setup
+**That's it!** The backend will start with mock data and you can test everything immediately.
+
+### 2. Test the API
+
+```bash
+# Check if it's running
+curl http://localhost:5000/health
+
+# Get all products
+curl http://localhost:5000/api/products
+
+# Get single product
+curl http://localhost:5000/api/products/1
+
+# Check data source
+curl http://localhost:5000/api/products/data-source/info
+```
+
+## 📊 **Mock Data vs Google Sheets**
+
+### **Mock Data (Default)**
+- ✅ **Works immediately** - No setup required
+- ✅ **6 sample products** included
+- ✅ **Full functionality** - Orders, stock updates, etc.
+- ✅ **Perfect for development** and testing
+- ❌ **Data resets** when server restarts
+- ❌ **Not persistent** across sessions
+
+### **Google Sheets (Optional)**
+- ✅ **Persistent data** - Survives server restarts
+- ✅ **Real-time sync** - Update products in sheets
+- ✅ **Easy management** - Non-technical users can update
+- ✅ **Order logging** - All orders saved to sheets
+- ⚙️ **Requires setup** - Google Service Account needed
+
+## 🔧 **Google Sheets Setup (Optional)**
+
+When you're ready to use Google Sheets instead of mock data:
 
 #### Create a Google Sheet
 1. Create a new Google Sheet with the following structure:
@@ -47,127 +86,190 @@ npm install
    - Generate a JSON key file
 5. Share your Google Sheet with the service account email
 
-### 3. Environment Configuration
+#### Environment Configuration
 
-Copy `.env.example` to `.env` and update with your values:
-
-```bash
-cp .env.example .env
-```
-
-Update the following in `.env`:
+Update the following in your `.env` file:
 - `GOOGLE_SHEETS_SPREADSHEET_ID`: Your Google Sheet ID (from the URL)
 - `GOOGLE_SERVICE_ACCOUNT_EMAIL`: Service account email
 - `GOOGLE_PRIVATE_KEY`: Private key from the JSON file (keep the quotes and \n)
 
-### 4. Start the Server
+The backend will automatically detect the configuration and switch to Google Sheets!
 
+## 🎯 **Development Workflow**
+
+### **Phase 1: Start with Mock Data**
 ```bash
-# Development mode
-npm run dev
-
-# Production mode
-npm start
+npm run dev  # Uses mock data automatically
 ```
 
-The server will start on `http://localhost:5000`
+### **Phase 2: Test Your Frontend**
+- Connect your React frontend to `http://localhost:5000`
+- Test all functionality with the 6 sample products
+- Place test orders and see stock updates
 
-## API Endpoints
+### **Phase 3: Add Google Sheets (When Ready)**
+- Set up Google Service Account
+- Update `.env` with credentials
+- Restart server - it automatically switches to Google Sheets!
 
-### Products
+## 📋 **API Endpoints**
 
-#### Get All Products
-```http
-GET /api/products
-```
-
-**Query Parameters:**
-- `category` - Filter by category
-- `minPrice` - Minimum price filter
-- `maxPrice` - Maximum price filter
-- `inStock` - Filter by stock availability (true/false)
-- `search` - Search in name, description, category
-- `limit` - Number of products per page (default: 50)
-- `offset` - Pagination offset (default: 0)
-- `sortBy` - Sort field (name, price, stock, createdAt)
-- `sortOrder` - Sort order (asc, desc)
-
-**Example:**
+### **Products**
 ```bash
-curl "http://localhost:5000/api/products?category=sunglasses&inStock=true&limit=10"
+GET /api/products                    # All products with filtering
+GET /api/products/:id               # Single product
+GET /api/products/categories/list   # All categories
+GET /api/products/data-source/info  # Check current data source
 ```
 
-#### Get Single Product
-```http
-GET /api/products/:id
-```
-
-**Example:**
+### **Orders**
 ```bash
-curl "http://localhost:5000/api/products/1"
+POST /api/orders                    # Create order
+POST /api/orders/validate-stock     # Validate stock
+GET /api/orders/mock/list          # View orders (dev only)
+POST /api/orders/mock/reset        # Reset data (dev only)
 ```
 
-#### Get Categories
-```http
-GET /api/products/categories/list
+### **Development Tools**
+```bash
+GET /health                         # Server health
+GET /api/products/health/check     # Products health
+GET /api/orders/health/check       # Orders health
 ```
 
-#### Search Suggestions
-```http
-GET /api/products/search/suggestions?q=aviator
+## 🧪 **Testing the Backend**
+
+### **1. Basic Health Check**
+```bash
+curl http://localhost:5000/health
 ```
 
-### Orders
+### **2. Get Products**
+```bash
+# All products
+curl http://localhost:5000/api/products
 
-#### Create Order
-```http
-POST /api/orders
+# Filter by category
+curl "http://localhost:5000/api/products?category=sunglasses"
+
+# Search products
+curl "http://localhost:5000/api/products?search=aviator"
 ```
 
-**Request Body:**
-```json
-{
-  "items": [
-    {
-      "productId": 1,
-      "quantity": 2,
-      "selectedColor": "Gold",
-      "selectedSize": "Medium"
+### **3. Create Test Order**
+```bash
+curl -X POST http://localhost:5000/api/orders \
+  -H "Content-Type: application/json" \
+  -d '{
+    "items": [{"productId": 1, "quantity": 2}],
+    "customerInfo": {
+      "name": "John Doe",
+      "email": "john@example.com"
+    },
+    "shippingAddress": {
+      "street": "123 Main St",
+      "city": "Mumbai",
+      "state": "Maharashtra",
+      "zipCode": "400001"
     }
-  ],
-  "customerInfo": {
-    "name": "John Doe",
-    "email": "john@example.com",
-    "phone": "+91-9876543210"
-  },
-  "shippingAddress": {
-    "street": "123 Main Street",
-    "city": "Mumbai",
-    "state": "Maharashtra",
-    "zipCode": "400001",
-    "country": "India"
-  },
-  "paymentMethod": "upi",
-  "notes": "Please handle with care"
-}
+  }'
 ```
 
-#### Validate Stock
-```http
-POST /api/orders/validate-stock
+### **4. Check Stock Updates**
+```bash
+# Check product stock after order
+curl http://localhost:5000/api/products/1
 ```
 
-**Request Body:**
-```json
-{
-  "items": [
-    {
-      "productId": 1,
-      "quantity": 2
-    }
-  ]
-}
+## 🔄 **Data Source Switching**
+
+In development, you can switch between data sources:
+
+```bash
+# Check current source
+curl http://localhost:5000/api/products/data-source/info
+
+# Switch to mock data
+curl -X POST http://localhost:5000/api/products/data-source/switch \
+  -H "Content-Type: application/json" \
+  -d '{"source": "mock"}'
+
+# Switch to Google Sheets (if configured)
+curl -X POST http://localhost:5000/api/products/data-source/switch \
+  -H "Content-Type: application/json" \
+  -d '{"source": "google-sheets"}'
 ```
+
+## 📦 **Sample Products Included**
+
+The mock data includes 6 realistic products:
+1. **Aviator Prestige** - Premium sunglasses (₹1,329)
+2. **Metropolitan Frame** - Modern prescription frames (₹1,289)
+3. **Artisan Round** - Vintage sunglasses (₹1,459)
+4. **Executive Titan** - Professional frames (₹1,599)
+5. **Classic Wayfarer** - Timeless sunglasses (₹1,199)
+6. **Sport Vision Pro** - Athletic eyewear (₹1,799)
+
+Each product includes:
+- Multiple colors and sizes
+- Realistic pricing with discounts
+- Stock quantities
+- Product features and descriptions
+- Customer ratings and reviews
+
+## 🚀 **Production Deployment**
+
+For production, simply:
+1. Set up Google Sheets with your real product data
+2. Configure environment variables
+3. Deploy to your hosting platform
+
+The backend automatically uses Google Sheets in production for persistent data.
+
+## 💡 **Why This Approach?**
+
+1. **Instant Development**: Start coding immediately without external dependencies
+2. **Realistic Testing**: Mock data mirrors real product structure
+3. **Gradual Migration**: Add Google Sheets when you need persistence
+4. **Flexible Deployment**: Works in any environment
+5. **Team Friendly**: Developers can work without shared credentials
+
+## 🛠️ **Troubleshooting**
+
+### **Backend Won't Start**
+```bash
+# Check if port 5000 is available
+lsof -i :5000
+
+# Try different port
+PORT=3001 npm run dev
+```
+
+### **No Products Returned**
+```bash
+# Check data source
+curl http://localhost:5000/api/products/data-source/info
+
+# Reset mock data
+curl -X POST http://localhost:5000/api/orders/mock/reset
+```
+
+### **Google Sheets Not Working**
+- Check environment variables are set correctly
+- Verify service account has access to the sheet
+- Check the spreadsheet ID in the URL
+- The backend will automatically fall back to mock data if Google Sheets fails
+
+## 🎉 **Ready to Go!**
+
+Your backend is now ready with:
+- ✅ **6 sample products** ready to use
+- ✅ **Full order processing** with stock management
+- ✅ **Easy Google Sheets upgrade** path
+- ✅ **Production-ready** security and performance
+- ✅ **Comprehensive API** for your React frontend
+
+Start your React frontend and connect it to `http://localhost:5000` - everything will work immediately! 🚀
 
 ### Health Checks
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const googleSheetService = require('../services/googleSheetService');
+const dataService = require('../services/dataService');
 const { formatProducts, formatProduct, validateProduct } = require('../utils/formatProduct');
 
 const router = express.Router();
@@ -38,7 +38,7 @@ router.get('/', async (req, res) => {
     }
 
     // Fetch products from Google Sheets
-    const rawProducts = await googleSheetService.getProducts();
+    const rawProducts = await dataService.getProducts();
     let products = formatProducts(rawProducts);
 
     // Apply filters
@@ -151,7 +151,7 @@ router.get('/:id', async (req, res) => {
     }
 
     // Fetch product from Google Sheets
-    const rawProduct = await googleSheetService.getProductById(value.id);
+    const rawProduct = await dataService.getProductById(value.id);
     
     if (!rawProduct) {
       return res.status(404).json({
@@ -202,7 +202,7 @@ router.get('/:id', async (req, res) => {
  */
 router.get('/categories/list', async (req, res) => {
   try {
-    const products = await googleSheetService.getProducts();
+    const products = await dataService.getProducts();
     const categories = [...new Set(products.map(product => product.category))].sort();
 
     const categoriesWithCounts = categories.map(category => ({
@@ -247,7 +247,7 @@ router.get('/search/suggestions', async (req, res) => {
       });
     }
 
-    const products = await googleSheetService.getProducts();
+    const products = await dataService.getProducts();
     const searchTerm = query.toLowerCase();
     
     // Get product name suggestions
@@ -296,10 +296,10 @@ router.get('/search/suggestions', async (req, res) => {
  */
 router.get('/health/check', async (req, res) => {
   try {
-    const status = await googleSheetService.getConnectionStatus();
+    const status = await dataService.getConnectionStatus();
     
     res.json({
-      success: status.connected,
+      success: true,
       data: status,
       timestamp: new Date().toISOString()
     });
@@ -310,6 +310,76 @@ router.get('/health/check', async (req, res) => {
     res.status(503).json({
       success: false,
       error: 'Health check failed',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * GET /api/products/data-source/info
+ * Get information about current data source
+ */
+router.get('/data-source/info', (req, res) => {
+  try {
+    const info = dataService.getDataSourceInfo();
+    
+    res.json({
+      success: true,
+      data: info,
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get data source info',
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
+});
+
+/**
+ * POST /api/products/data-source/switch
+ * Switch between Google Sheets and Mock Data (development only)
+ */
+router.post('/data-source/switch', (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({
+      error: 'Not allowed in production',
+      message: 'Data source switching is only available in development mode'
+    });
+  }
+  try {
+    const { source } = req.body;
+    
+    if (source === 'google-sheets') {
+      const success = dataService.switchToGoogleSheets();
+      if (!success) {
+        return res.status(400).json({
+          error: 'Cannot switch to Google Sheets',
+          message: 'Google Sheets credentials not configured'
+        });
+      }
+    } else if (source === 'mock') {
+      dataService.switchToMockData();
+    } else {
+      return res.status(400).json({
+        error: 'Invalid source',
+        message: 'Source must be "google-sheets" or "mock"'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: `Switched to ${source === 'google-sheets' ? 'Google Sheets' : 'Mock Data'}`,
+      dataSource: dataService.getDataSourceInfo(),
+      timestamp: new Date().toISOString()
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Failed to switch data source',
       message: error.message,
       timestamp: new Date().toISOString()
     });
